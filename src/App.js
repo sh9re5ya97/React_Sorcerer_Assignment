@@ -16,6 +16,7 @@ const DraftEditor = () => {
   const BLOCK_TYPE_BOLD = 'bold';
   const BLOCK_TYPE_UNDERLINE = 'underline';
   const BLOCK_TYPE_RED = 'red';
+  const BLOCK_TYPE_CODE = 'code';
 
   const blockStyleFn = (contentBlock) => {
     const type = contentBlock.getType();
@@ -27,6 +28,9 @@ const DraftEditor = () => {
     }
     if (type === BLOCK_TYPE_RED) {
       return 'red-block'; // CSS class name for your custom block
+    }
+    if (type === BLOCK_TYPE_CODE) {
+      return 'code-block'; // CSS class name for your custom block
     }
   };
 
@@ -43,6 +47,10 @@ const DraftEditor = () => {
     [BLOCK_TYPE_RED]: {
       element: 'blockred',
       wrapper: <blockred className="red-block" />, // JSX element or string for block wrapper
+    },
+    [BLOCK_TYPE_CODE]: {
+      element: 'blockcode',
+      wrapper: <div className="code-block" />, // JSX element or string for block wrapper
     }
   });
 
@@ -142,23 +150,23 @@ const DraftEditor = () => {
       return 'handled';
     }
 
-    if (chars === ' ' && blockText === '```') {
-      const newContentState = Modifier.setBlockType(
+    if (chars === ' ' && blockText === '****') {
+      const newContentStateWithoutstar4 = Modifier.removeRange(
         currentContent,
-        selection,
-        'code-block'
-      );
-
-      const newContentStateWithoutBackticks = Modifier.removeRange(
-        newContentState,
         selection.merge({
           anchorOffset: 0,
-          focusOffset: 3,
+          focusOffset: 4,
         }),
         'backward'
       );
 
-      setEditorState(EditorState.push(editorState, newContentStateWithoutBackticks, 'change-block-type'));
+      const newContentState = Modifier.setBlockType(
+        newContentStateWithoutstar4,
+        newContentStateWithoutstar4.getSelectionAfter(),
+        BLOCK_TYPE_CODE
+      );
+
+      setEditorState(EditorState.push(editorState, newContentState, 'change-block-type'));
       return 'handled';
     }
 
@@ -190,21 +198,6 @@ const DraftEditor = () => {
       'unstyled'
     );
 
-    // // Remove all inline styles from the new block
-    // const blockKey = newContentStateWithUnstyled.getSelectionAfter().getStartKey();
-    // const blockLength = newContentStateWithUnstyled.getBlockForKey(blockKey).getLength();
-    // // const blockSelection = SelectionState.createEmpty(blockKey).merge({
-    // //   anchorOffset: 0,
-    // //   focusOffset: blockLength,
-    // // });
-
-    // const finalContentState = Modifier.applyInlineStyle(
-    //   newContentStateWithUnstyled,
-    //   newSelection,
-    //   'UNDERLINE'
-    // );
-
-
     const finalEditorState = EditorState.push(newEditorState, newContentStateWithUnstyled, 'change-block-type');
     setEditorState(finalEditorState);
 
@@ -215,7 +208,7 @@ const DraftEditor = () => {
 
   return (
     <>
-    <div className="editor">
+    <div className="editor rounded">
       <Editor
         editorState={editorState}
         onChange={handleChange}
@@ -227,7 +220,7 @@ const DraftEditor = () => {
         placeholder="Start typing..."
       />
     </div>
-      <Button editorState={editorState}/>
+    <div><Button editorState={editorState}/></div>
       </>
   );
 };
@@ -235,7 +228,7 @@ const DraftEditor = () => {
 const Title = () => {
   return (
     <div className="title">
-      <h1>Demo Editor by Shreya</h1>
+      <h3>Demo Editor by Shreya</h3>
     </div>
   );
 };
@@ -245,14 +238,13 @@ const Button = ({editorState}) => {
   const handleSave = () => {
     const contentState = editorState.getCurrentContent();
     const serializedContent = JSON.stringify(convertToRaw(contentState));
-    // EditorState.createWithContent(convertFromRaw(JSON.parse(serializedContent)));
     localStorage.setItem('draftEditorContent', serializedContent);
     alert('Content saved!');
   };
 
   return (
     <div className="button">
-      <button onClick={handleSave}>Save</button>
+      <button className="rounded" onClick={handleSave}>Save</button>
     </div>
   );
 };
@@ -260,8 +252,10 @@ const Button = ({editorState}) => {
 const App = () => {
   return (
     <div className="app">
+      <div className='container'>
       <Title />
       <DraftEditor />
+      </div>
     </div>
   );
 };
