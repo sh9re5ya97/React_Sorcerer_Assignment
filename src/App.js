@@ -150,7 +150,7 @@ const DraftEditor = () => {
       return 'handled';
     }
 
-    if (chars === ' ' && blockText === '****') {
+    if (chars === ' ' && blockText === '\`\`\`') {
       const newContentStateWithoutstar4 = Modifier.removeRange(
         currentContent,
         selection.merge({
