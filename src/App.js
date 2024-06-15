@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import { Editor, EditorState, RichUtils,Modifier,convertToRaw,convertFromRaw,DefaultDraftBlockRenderMap  } from 'draft-js';
 import Immutable from 'immutable';
